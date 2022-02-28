@@ -68,7 +68,7 @@ class LoadWidget(QWidget):
             lbl_file = os.path.join(self.new_path, f"{i:02d}_lbl.tif")
             img_file = os.path.join(self.new_path, f"{i:02d}_img.tif")
             imwrite(lbl_file, self.lbl_layer.data[i, ...])
-            imwrite(img_file, self.img[:, i, ...])
+            imwrite(img_file, self.img[i, ...])
 
     def select_label(self, event=None):
         i = self.viewer.dims.current_step[0]
