@@ -6,6 +6,9 @@ from magicgui.widgets import FileEdit
 from pathlib import Path
 from tifffile import TiffFile, imread, imwrite
 
+from stardist.models import StarDist2D, StarDist3D
+from csbdeep.utils import normalize
+
 
 class LoadWidget(QWidget):
     # your QWidget.__init__ can optionally request the napari viewer instance
@@ -21,11 +24,33 @@ class LoadWidget(QWidget):
 
         self.file_edit = FileEdit(label="File: ")
 
+        self.model_dir = FileEdit(label="Model dir: ", mode="d")
+        btn_predict = QPushButton("Predict labels")
+        btn_predict.clicked.connect(self._predict)
+
         self.setLayout(QHBoxLayout())
         self.layout().addWidget(self.file_edit.native)
         self.layout().addWidget(btn)
 
+        self.layout().addWidget(self.model_dir.native)
+        self.layout().addWidget(btn_predict)
+
         self.layers = None
+
+    def _predict(self):
+        path = Path(self.model_dir.value)
+        model_name = path.name
+        model_path = path.parents[0]
+        model = StarDist2D(None, name=model_name, basedir=model_path)
+
+        for i in range(self.img.shape[0]):
+            img = self.img[i, ...].transpose((1, 2, 0))
+            img = normalize(img, 1, 99.8, axis=(0, 1))
+            print(img.shape)
+
+            labels, _ = model.predict_instances(img)
+
+            self.lbl_layer.data[i, ...] = labels
 
     def _on_click(self):
         path = Path(self.file_edit.value)
