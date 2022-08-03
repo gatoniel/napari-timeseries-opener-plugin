@@ -21,6 +21,13 @@ and review the napari docs for plugin developers:
 https://napari.org/plugins/stable/index.html
 -->
 
+## Run
+
+In powershell run when you do not have sufficient GPU support in your environment
+```
+$env:CUDA_VISIBLE_DEVICES=-1; napari
+```
+
 ## Installation
 
 You can install `napari-timeseries-opener-plugin` via [pip]:
