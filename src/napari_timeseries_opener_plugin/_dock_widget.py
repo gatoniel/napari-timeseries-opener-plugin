@@ -94,6 +94,11 @@ class LoadWidget(QWidget):
             img_file = os.path.join(self.new_path, f"{i:02d}_img.tif")
             imwrite(lbl_file, self.lbl_layer.data[i, ...])
             imwrite(img_file, self.img[i, ...].transpose(1, 2, 0))
+        imwrite(
+            os.path.join(self.new_path, "combined_lbl.tif"),
+            self.lbl_layer.data,
+            metadata={"axes": "TYX"},
+        )
 
     def select_label(self, event=None):
         i = self.viewer.dims.current_step[0]
