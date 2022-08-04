@@ -1,3 +1,5 @@
+# ignore my dev python venv
+dev/
 *.swp
 # Byte-compiled / optimized / DLL files
 __pycache__/

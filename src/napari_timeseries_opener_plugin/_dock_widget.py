@@ -96,8 +96,11 @@ class LoadWidget(QWidget):
             imwrite(img_file, self.img[i, ...].transpose(1, 2, 0))
         imwrite(
             os.path.join(self.new_path, "combined_lbl.tif"),
-            self.lbl_layer.data,
-            metadata={"axes": "TYX"},
+            self.lbl_layer.data.astype(np.single),
+            # metadata={"axes": "TYX"},
+            # We need to use ZYX in order to ensure correct import by MiocrobeJ
+            # on Sarah's side.
+            metadata={"axes": "ZYX"},
         )
 
     def select_label(self, event=None):
