@@ -9,6 +9,8 @@ from tifffile import TiffFile, imread, imwrite
 from stardist.models import StarDist2D, StarDist3D
 from csbdeep.utils import normalize
 
+from itertools import product
+
 
 class LoadWidget(QWidget):
     # your QWidget.__init__ can optionally request the napari viewer instance
@@ -94,14 +96,23 @@ class LoadWidget(QWidget):
             img_file = os.path.join(self.new_path, f"{i:02d}_img.tif")
             imwrite(lbl_file, self.lbl_layer.data[i, ...])
             imwrite(img_file, self.img[i, ...].transpose(1, 2, 0))
-        imwrite(
-            os.path.join(self.new_path, "combined_lbl.tif"),
-            self.lbl_layer.data.astype(np.single),
-            # metadata={"axes": "TYX"},
-            # We need to use ZYX in order to ensure correct import by MiocrobeJ
-            # on Sarah's side.
-            metadata={"axes": "ZYX"},
-        )
+        for t, axes in product(
+            [
+                (np.single, "single"),
+                (float, "float"),
+                (int, "int"),
+                (np.uint16, "uint16"),
+            ],
+            ["TYX", "ZYX"],
+        ):
+            imwrite(
+                os.path.join(self.new_path, f"combined_lbl_{t[1]}_{axes}.tif"),
+                self.lbl_layer.data.astype(t[0]),
+                # metadata={"axes": "TYX"},
+                # We need to use ZYX in order to ensure correct import by MiocrobeJ
+                # on Sarah's side.
+                metadata={"axes": axes},
+            )
 
     def select_label(self, event=None):
         i = self.viewer.dims.current_step[0]
