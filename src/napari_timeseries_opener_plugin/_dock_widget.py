@@ -96,7 +96,7 @@ class LoadWidget(QWidget):
             img_file = os.path.join(self.new_path, f"{i:02d}_img.tif")
             imwrite(lbl_file, self.lbl_layer.data[i, ...])
             imwrite(img_file, self.img[i, ...].transpose(1, 2, 0))
-        for t, axes in product(
+        for t, axes, ij in product(
             [
                 (np.single, "single"),
                 (float, "float"),
@@ -104,15 +104,22 @@ class LoadWidget(QWidget):
                 (np.uint16, "uint16"),
             ],
             ["TYX", "ZYX"],
+            [(True, "imagej"), (False, "noimagej")],
         ):
-            imwrite(
-                os.path.join(self.new_path, f"combined_lbl_{t[1]}_{axes}.tif"),
-                self.lbl_layer.data.astype(t[0]),
-                # metadata={"axes": "TYX"},
-                # We need to use ZYX in order to ensure correct import by MiocrobeJ
-                # on Sarah's side.
-                metadata={"axes": axes},
-            )
+            try:
+                imwrite(
+                    os.path.join(
+                        self.new_path, f"combined_lbl_{t[1]}_{axes}_{ij[1]}.tif"
+                    ),
+                    self.lbl_layer.data.astype(t[0]),
+                    imagej=ij[0],
+                    # metadata={"axes": "TYX"},
+                    # We need to use ZYX in order to ensure correct import by MiocrobeJ
+                    # on Sarah's side.
+                    metadata={"axes": axes},
+                )
+            except ValueError:
+                pass
 
     def select_label(self, event=None):
         i = self.viewer.dims.current_step[0]
